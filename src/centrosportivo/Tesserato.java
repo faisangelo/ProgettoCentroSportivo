@@ -3,11 +3,15 @@ package centrosportivo;
 import java.io.Serializable;
 
 public class Tesserato implements Comparable<Tesserato>, Serializable {
-    private int numTessera;
+    private final int numTessera;
     private final String nome, cognome;
+    private static Integer proxNumTessera;
 
-    public Tesserato(int numTessera, String nome, String cognome) {
-        this.numTessera = numTessera;
+    public Tesserato(String nome, String cognome) {
+        if (proxNumTessera == null) {
+            proxNumTessera = 1;
+        }
+        this.numTessera = proxNumTessera++;
         this.nome = nome;
         this.cognome = cognome;
     }
@@ -22,10 +26,6 @@ public class Tesserato implements Comparable<Tesserato>, Serializable {
 
     public String getCognome() {
         return cognome;
-    }
-
-    public void setNumTessera(int numTessera) {
-        this.numTessera = numTessera;
     }
 
     @Override

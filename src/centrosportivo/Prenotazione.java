@@ -1,16 +1,17 @@
 package centrosportivo;
 
+import prog.utili.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     private CampoDaGioco campo;
-    private Date data;
+    private Data data;
     private int oraInizio;
     private ArrayList<Tesserato> giocatori;
 
-    public Prenotazione(CampoDaGioco campo, Date data, int oraInizio, ArrayList<Tesserato> giocatori) {
+    public Prenotazione(CampoDaGioco campo, Data data, int oraInizio, ArrayList<Tesserato> giocatori) {
         this.campo = campo;
         this.data = data;
         this.oraInizio = oraInizio;
@@ -21,18 +22,18 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
         return campo;
     }
 
-    public boolean addGiocatore(Tesserato t){
-        if (giocatori.size() < campo.getMaxGiocatori()){
+    public boolean addGiocatore(Tesserato t) {
+        if (giocatori.size() < campo.getMaxGiocatori()) {
             return giocatori.add(t);
         }
         return false;
     }
 
-    public boolean removeGiocatore(Tesserato t){
+    public boolean removeGiocatore(Tesserato t) {
         return giocatori.remove(t);
     }
 
-    public Date getData() {
+    public Data getData() {
         return data;
     }
 
@@ -48,7 +49,7 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
         this.campo = campo;
     }
 
-    public void setData(Date data) {
+    public void setData(Data data) {
         this.data = data;
     }
 
@@ -64,7 +65,7 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     }
 
     @Override
-    public int compareTo(Prenotazione p){
+    public int compareTo(Prenotazione p) {
         return this.data.compareTo(p.data);
     }
 }

@@ -3,11 +3,16 @@ package centrosportivo;
 import java.io.Serializable;
 
 public class CampoDaGioco implements Serializable {
-    private int codCampo, maxGiocatori;
+    private final int codCampo;
+    private int maxGiocatori;
     private TipoCampo tipo;
+    private static Integer proxCodCampo;
 
-    public CampoDaGioco(int codCampo, TipoCampo tipo) {
-        this.codCampo = codCampo;
+    public CampoDaGioco(TipoCampo tipo) {
+        if (proxCodCampo == null) {
+            proxCodCampo = 1;
+        }
+        this.codCampo = proxCodCampo++;
         this.tipo = tipo;
         switch (this.tipo) {
             case TENNIS -> maxGiocatori = 2;
@@ -27,10 +32,6 @@ public class CampoDaGioco implements Serializable {
 
     public int getMaxGiocatori() {
         return maxGiocatori;
-    }
-
-    public void setCodCampo(int codCampo) {
-        this.codCampo = codCampo;
     }
 
     public void setTipo(TipoCampo tipo) {
