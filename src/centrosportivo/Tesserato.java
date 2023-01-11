@@ -37,4 +37,25 @@ public class Tesserato implements Comparable<Tesserato>, Serializable {
     public int compareTo(Tesserato t) {
         return this.cognome.compareTo(t.cognome);
     }
+
+    public enum Ordinamento {
+        COGNOME {
+            @Override
+            public String toString() {
+                return "Cognome";
+            }
+        },
+        NOME {
+            @Override
+            public String toString() {
+                return "Nome";
+            }
+        },
+        NUMEROTESSERA {
+            @Override
+            public String toString() {
+                return "Numero tessera";
+            }
+        }
+    }
 }

@@ -2,7 +2,7 @@ package centrosportivo;
 
 import java.io.Serializable;
 
-public class CampoDaGioco implements Serializable {
+public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
     private final int codCampo;
     private int maxGiocatori;
     private TipoCampo tipo;
@@ -43,7 +43,27 @@ public class CampoDaGioco implements Serializable {
     }
 
     @Override
+    public int compareTo(CampoDaGioco c) {
+        return Integer.compare(this.codCampo, c.codCampo);
+    }
+
+    @Override
     public String toString() {
         return codCampo + ": " + tipo;
+    }
+
+    public enum Ordinamento {
+        CODCAMPO {
+            @Override
+            public String toString() {
+                return "Codice campo";
+            }
+        },
+        TIPOCAMPO {
+            @Override
+            public String toString() {
+                return "Tipo campo";
+            }
+        }
     }
 }

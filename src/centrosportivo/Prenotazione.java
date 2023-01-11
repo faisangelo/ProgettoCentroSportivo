@@ -68,4 +68,25 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     public int compareTo(Prenotazione p) {
         return this.data.compareTo(p.data);
     }
+
+    public enum Ordinamento {
+        DATA {
+            @Override
+            public String toString() {
+                return "Data";
+            }
+        },
+        GIOCATORE1 {
+            @Override
+            public String toString() {
+                return "Giocatore 1";
+            }
+        },
+        TIPOCAMPO {
+            @Override
+            public String toString() {
+                return "Tipo campo";
+            }
+        }
+    }
 }
