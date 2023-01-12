@@ -30,7 +30,7 @@ public class Tesserato implements Comparable<Tesserato>, Serializable {
 
     @Override
     public String toString() {
-        return numTessera + ": " + nome + " " + cognome;
+        return "#" + numTessera + ": " + nome + " " + cognome;
     }
 
     @Override

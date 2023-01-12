@@ -2,6 +2,7 @@ package centrosportivo;
 
 import prog.io.ConsoleInputManager;
 import prog.io.ConsoleOutputManager;
+import prog.utili.Data;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -30,12 +31,16 @@ public class CentroSportivo {
             prenotazioni = (ArrayList<Prenotazione>) ois.readObject();
             ois.close();
             fis.close();
+            if (!prenotazioni.isEmpty()) {
+                Data data = new Data();
+                prenotazioni.removeIf(p -> p.getData().isMinore(data));  //cancella le prenotazioni dei giorni passati
+            }
         } catch (FileNotFoundException f) {
             out.println("File non trovato, passo all'inserimento dei dati\n");
             tesserati = inserisciTesserati(in, out);
             out.println();
             campi = inserisciCampi(in, out);
-            prenotazioni = null;
+            prenotazioni = new ArrayList<>();
         }
         int scelta;
         do {
@@ -58,7 +63,7 @@ public class CentroSportivo {
                 case 4 -> stampaTesseratiOrdinati(tesserati, in, out);
                 case 5 -> stampaCampiOrdinati(campi, in, out);
                 case 6 -> stampaPrenotazioniOrdinate(prenotazioni, in, out);
-                case 7 -> effettuaPrenotazione(prenotazioni);
+                case 7 -> effettuaPrenotazione(prenotazioni, campi, tesserati, in, out);
                 case 8 -> cancellaPrenotazione(prenotazioni);
                 case 9 -> modificaPrenotazione(prenotazioni);
             }
@@ -336,12 +341,105 @@ public class CentroSportivo {
         }
     }
 
-    static void effettuaPrenotazione(ArrayList<Prenotazione> prenotazioni) {
+    static void effettuaPrenotazione(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
+                                     ArrayList<Tesserato> tesserati, ConsoleInputManager in, ConsoleOutputManager out) {
+        ArrayList<CampoDaGioco> estratti;
+        Data data;
+        int oraInizio;
+        Prenotazione prenotazione = null;
+        TipoCampo[] tipi = TipoCampo.values();
+        TipoCampo tipo = null;
+        out.println("Che tipo di campo vuoi prenotare?\n");
+        int i = 1;
+        for (TipoCampo t : tipi) {
+            out.println(i + ") " + t.toString());
+            i++;
+        }
+        boolean flag = false;
+        do {
+            int scelta = in.readInt("\nScegli [1 - 5]: ");
+            try {
+                tipo = tipi[scelta - 1];
+                flag = true;
+            } catch (ArrayIndexOutOfBoundsException a) {
+                out.println("Inserimento non valido, riprova");
+            }
+        } while (!flag);
+        estratti = estraiCampi(campi, tipo);  //tutti i campi del tipo scelto
+        if (!estratti.isEmpty() && tesserati.size() >= estratti.get(0).getMaxGiocatori()) {
+            flag = false;
+            do {
+                Data oggi = new Data();
+                data = new Data(in.readLine("Inserisci la data: "));
+                oraInizio = in.readInt("Inserisci l'ora di inizio (ogni prenotazione vale un'ora soltanto): ");
+                if ((data.isMaggiore(oggi) || data.equals(oggi)) && oraInizio <= 21 && oraInizio >= 9) {
+                    flag = true;
+                } else {
+                    out.println("Inserimento non valido, riprova");
+                }
+            } while (!flag);
+            boolean occupato = false;
+            if (prenotazioni.isEmpty()) {
+                prenotazione = new Prenotazione(estratti.get(0), data, oraInizio);
+            } else {
+                for (CampoDaGioco c : estratti) {
+                    occupato = false;
+                    prenotazione = new Prenotazione(c, data, oraInizio);
+                    for (Prenotazione p : prenotazioni) {
+                        if (p.equals(prenotazione)) {
+                            occupato = true;
+                            break;
+                        }
+                    }
+                    if (!occupato) {
+                        break;
+                    }
+                }
+            }
+            if (!occupato) {
+                out.println("Campo libero, inserisci i numeri tessera dei giocatori!");
+                for (int j = 1; j <= prenotazione.getCampo().getMaxGiocatori(); j++) {
+                    Tesserato t;
+                    flag = false;
+                    boolean inserito = false;
+                    do {
+                        int scelta = in.readInt("\nGiocatore " + j + ": ");
+                        try {
+                            t = tesserati.get(scelta - 1);
+                            inserito = prenotazione.addGiocatore(t);
+                            if (!inserito) {
+                                out.println("Giocatore già inserito, riprova");
+                            }
+                            flag = true;
+                        } catch (IndexOutOfBoundsException e) {
+                            out.println("Inserimento non valido, riprova");
+                        }
+                    } while (!flag || !inserito);
+                }
+                prenotazioni.add(prenotazione);
+                out.println("Prenotazione confermata! Visualizzo le prenotazioni\n");
+                stampaPrenotazioni(prenotazioni, in, out);
+            } else {
+                out.println("Mi dispiace! Nessun campo libero in questo slot");
+            }
+        } else {
+            out.println("Mi dispiace! Il numero di tesserati è inferiore ai giocatori richiesti oppure non esistono " +
+                    "campi del tipo selezionato");
+        }
+    }
 
+    static ArrayList<CampoDaGioco> estraiCampi(ArrayList<CampoDaGioco> campi, TipoCampo tipo) {
+        ArrayList<CampoDaGioco> estratti = new ArrayList<>();
+        for (CampoDaGioco c : campi) {
+            if (c.getTipo().toString().equals(tipo.toString())) {
+                estratti.add(c);
+            }
+        }
+        return estratti;
     }
 
     static void cancellaPrenotazione(ArrayList<Prenotazione> prenotazioni) {
-
+        prenotazioni.clear();
     }
 
     static void modificaPrenotazione(ArrayList<Prenotazione> prenotazioni) {

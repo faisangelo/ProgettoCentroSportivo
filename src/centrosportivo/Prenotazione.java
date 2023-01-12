@@ -11,11 +11,11 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     private int oraInizio;
     private ArrayList<Tesserato> giocatori;
 
-    public Prenotazione(CampoDaGioco campo, Data data, int oraInizio, ArrayList<Tesserato> giocatori) {
+    public Prenotazione(CampoDaGioco campo, Data data, int oraInizio) {
         this.campo = campo;
         this.data = data;
         this.oraInizio = oraInizio;
-        this.giocatori = giocatori;
+        giocatori = new ArrayList<>();
     }
 
     public CampoDaGioco getCampo() {
@@ -23,7 +23,7 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     }
 
     public boolean addGiocatore(Tesserato t) {
-        if (giocatori.size() < campo.getMaxGiocatori()) {
+        if (giocatori.size() < campo.getMaxGiocatori() && !giocatori.contains(t)) {
             return giocatori.add(t);
         }
         return false;
@@ -60,8 +60,24 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     @Override
     public String toString() {
         return "Prenotazione effettuata da: " + giocatori.toString() +
-                ", Campo: " + campo.toString() +
+                ", Campo " + campo.toString() +
                 ", Data e ora di inizio: " + data.toString() + " alle " + oraInizio;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+        if (this.data.equals(((Prenotazione) obj).data)){
+            if (this.campo.getCodCampo() == ((Prenotazione) obj).campo.getCodCampo()){
+                return this.oraInizio == ((Prenotazione) obj).oraInizio;
+            }
+        }
+        return false;
     }
 
     @Override
