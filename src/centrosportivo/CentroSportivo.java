@@ -45,17 +45,17 @@ public class CentroSportivo {
         int scelta;
         do {
             out.println("\n*** CENTRO SPORTIVO ***"); //menu provvisorio
-            out.println("1) Scorri elenco tesserati");
-            out.println("2) Scorri elenco campi da gioco");
-            out.println("3) Scorri elenco prenotazioni");
-            out.println("4) Ordina i tesserati");
-            out.println("5) Ordina i campi da gioco");
+            out.print("1) Scorri elenco tesserati          ");
             out.println("6) Ordina le prenotazioni");
+            out.print("2) Scorri elenco campi da gioco     ");
             out.println("7) Prenota un campo da gioco");
+            out.print("3) Scorri elenco prenotazioni       ");
             out.println("8) Cancella una prenotazione");
+            out.print("4) Ordina i tesserati               ");
             out.println("9) Modifica una prenotazione");
-            out.println("0 per uscire");
-            scelta = in.readInt("\nScegli [0 - 7]: ");
+            out.println("5) Ordina i campi da gioco");
+            out.println("\n0 per uscire");
+            scelta = in.readInt("\nScegli [0 - 9]: ");
             switch (scelta) {
                 case 1 -> stampaTesserati(tesserati, in, out);
                 case 2 -> stampaCampi(campi, in, out);
@@ -64,8 +64,8 @@ public class CentroSportivo {
                 case 5 -> stampaCampiOrdinati(campi, in, out);
                 case 6 -> stampaPrenotazioniOrdinate(prenotazioni, in, out);
                 case 7 -> effettuaPrenotazione(prenotazioni, campi, tesserati, in, out);
-                case 8 -> cancellaPrenotazione(prenotazioni);
-                case 9 -> modificaPrenotazione(prenotazioni);
+                case 8 -> cancellaPrenotazione(prenotazioni, in, out);
+                case 9 -> modificaPrenotazione(prenotazioni, campi, tesserati, in, out);
             }
         } while (scelta != 0);
         out.println("\nSalvo lo stato nel file: " + nomeFileStato);
@@ -127,16 +127,15 @@ public class CentroSportivo {
 
     static void stampaTesserati(ArrayList<Tesserato> tesserati, ConsoleInputManager in,
                                 ConsoleOutputManager out) {
-        int pos = 0;
+        int pos = 0, i;
         char c;
         boolean fineElenco = false;
         do {
-            for (int i = 0; i < righePagina; i++) {
-                if (i + pos >= tesserati.size()) {
-                    fineElenco = true;
-                    break;
-                }
+            for (i = 0; i < righePagina && i + pos < tesserati.size(); i++) {
                 out.println(tesserati.get(pos + i).toString());
+            }
+            if (i + pos >= tesserati.size()) {
+                fineElenco = true;
             }
             if (pos > 0 && !fineElenco) {
                 c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
@@ -161,16 +160,15 @@ public class CentroSportivo {
 
     static void stampaCampi(ArrayList<CampoDaGioco> campi, ConsoleInputManager in,
                             ConsoleOutputManager out) {
-        int pos = 0;
+        int pos = 0, i;
         char c;
         boolean fineElenco = false;
         do {
-            for (int i = 0; i < righePagina; i++) {
-                if (i + pos >= campi.size()) {
-                    fineElenco = true;
-                    break;
-                }
+            for (i = 0; i < righePagina && i + pos < campi.size(); i++) {
                 out.println(campi.get(pos + i).toString());
+            }
+            if (i + pos >= campi.size()) {
+                fineElenco = true;
             }
             if (pos > 0 && !fineElenco) {
                 c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
@@ -195,16 +193,15 @@ public class CentroSportivo {
 
     static void stampaPrenotazioni(ArrayList<Prenotazione> prenotazioni, ConsoleInputManager in,
                                    ConsoleOutputManager out) {
-        int pos = 0;
+        int pos = 0, i;
         char c;
         boolean fineElenco = false;
         do {
-            for (int i = 0; i < righePagina; i++) {
-                if (i + pos >= prenotazioni.size()) {
-                    fineElenco = true;
-                    break;
-                }
-                out.println(prenotazioni.get(pos + i).toString());
+            for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
+                out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+            }
+            if (i + pos >= prenotazioni.size()) {
+                fineElenco = true;
             }
             if (pos > 0 && !fineElenco) {
                 c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
@@ -397,10 +394,14 @@ public class CentroSportivo {
                 }
             }
             if (!occupato) {
+                Tesserato.Ordinamento temp = ordinamentoTesserato;
+                if (ordinamentoTesserato != Tesserato.Ordinamento.NUMEROTESSERA) {
+                    ordinamentoTesserato = Tesserato.Ordinamento.NUMEROTESSERA;
+                    ordinaTesserati(tesserati);
+                }
                 out.println("Campo libero, inserisci i numeri tessera dei giocatori!");
                 for (int j = 1; j <= prenotazione.getCampo().getMaxGiocatori(); j++) {
                     Tesserato t;
-                    flag = false;
                     boolean inserito = false;
                     do {
                         int scelta = in.readInt("\nGiocatore " + j + ": ");
@@ -410,39 +411,226 @@ public class CentroSportivo {
                             if (!inserito) {
                                 out.println("Giocatore già inserito, riprova");
                             }
-                            flag = true;
                         } catch (IndexOutOfBoundsException e) {
                             out.println("Inserimento non valido, riprova");
                         }
-                    } while (!flag || !inserito);
+                    } while (!inserito);
+                }
+                if (temp != ordinamentoTesserato) {
+                    ordinamentoTesserato = temp;
+                    ordinaTesserati(tesserati);
                 }
                 prenotazioni.add(prenotazione);
                 out.println("Prenotazione confermata! Visualizzo le prenotazioni\n");
                 stampaPrenotazioni(prenotazioni, in, out);
             } else {
                 out.println("Mi dispiace! Nessun campo libero in questo slot");
+                in.readLine("[INVIO] per tornare al menu");
             }
         } else {
             out.println("Mi dispiace! Il numero di tesserati è inferiore ai giocatori richiesti oppure non esistono " +
                     "campi del tipo selezionato");
+            in.readLine("[INVIO] per tornare al menu");
         }
     }
 
     static ArrayList<CampoDaGioco> estraiCampi(ArrayList<CampoDaGioco> campi, TipoCampo tipo) {
         ArrayList<CampoDaGioco> estratti = new ArrayList<>();
         for (CampoDaGioco c : campi) {
-            if (c.getTipo().toString().equals(tipo.toString())) {
+            if (c.getTipo() == tipo) {
                 estratti.add(c);
             }
         }
         return estratti;
     }
 
-    static void cancellaPrenotazione(ArrayList<Prenotazione> prenotazioni) {
-        prenotazioni.clear();
+    static void cancellaPrenotazione(ArrayList<Prenotazione> prenotazioni, ConsoleInputManager in,
+                                     ConsoleOutputManager out) {
+        int pos = 0, i;
+        char c = '0';
+        boolean fineElenco = false;
+        do {
+            for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
+                out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+            }
+            if (i + pos >= prenotazioni.size()) {
+                fineElenco = true;
+            }
+            if (in.readSiNo("\nVuoi cambiare pagina? [s] [n]: ")) {
+                if (pos > 0 && !fineElenco) {
+                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
+                } else if (fineElenco && pos > 0) {
+                    c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
+                } else if (fineElenco && pos == 0) {
+                    c = in.readChar("\n[0] per uscire: ");
+                } else {
+                    c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
+                }
+                if (c == '+' && !fineElenco) {
+                    pos += righePagina;
+                } else if (c == '-' && pos > 0) {
+                    pos -= righePagina;
+                    if (fineElenco) {
+                        fineElenco = false;
+                    }
+                }
+            } else {
+                boolean flag = false;
+                do {
+                    int scelta = in.readInt("Inserisci il numero della prenotazione che vuoi cancellare: ");
+                    if (scelta > pos && scelta <= pos + i) {
+                        prenotazioni.remove(scelta - 1);
+                        out.println("Prenotazione cancellata!");
+                        in.readLine("[INVIO] per tornare al menu");
+                        c = '0';
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
+            }
+            out.println();
+        } while (c != '0');
     }
 
-    static void modificaPrenotazione(ArrayList<Prenotazione> prenotazioni) {
+    static void modificaPrenotazione(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
+                                     ArrayList<Tesserato> tesserati, ConsoleInputManager in, ConsoleOutputManager out) {
+        int pos = 0, i;
+        char c = '0';
+        boolean fineElenco = false;
+        do {
+            for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
+                out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+            }
+            if (i + pos >= prenotazioni.size()) {
+                fineElenco = true;
+            }
+            if (in.readSiNo("\nVuoi cambiare pagina? [s] [n]: ")) {
+                if (pos > 0 && !fineElenco) {
+                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
+                } else if (fineElenco && pos > 0) {
+                    c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
+                } else if (fineElenco && pos == 0) {
+                    c = in.readChar("\n[0] per uscire: ");
+                } else {
+                    c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
+                }
+                if (c == '+' && !fineElenco) {
+                    pos += righePagina;
+                } else if (c == '-' && pos > 0) {
+                    pos -= righePagina;
+                    if (fineElenco) {
+                        fineElenco = false;
+                    }
+                }
+            } else {
+                boolean flag = false;
+                do {
+                    int indice = in.readInt("Inserisci il numero della prenotazione che vuoi modificare: ");
+                    if (indice > pos && indice <= pos + i) {
+                        out.println("Cosa vuoi modificare?");
+                        out.println("1) Giocatori");
+                        out.println("2) Data e ora");
+                        int scelta = in.readInt("\nScegli [1 - 2]: ");
+                        if (scelta == 1 || scelta == 2) {
+                            switch (scelta) {
+                                case 1 -> modificaGiocatori(prenotazioni, tesserati, indice, in, out);
+                                case 2 -> modificaDataOra(prenotazioni, campi, indice, in, out);
+                            }
+                            flag = true;
+                            in.readLine("[INVIO] per tornare al menu");
+                            c = '0';
+                        } else {
+                            out.println("Inserimento non valido, riprova!");
+                        }
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
+            }
+            out.println();
+        } while (c != '0');
+    }
 
+    static void modificaGiocatori(ArrayList<Prenotazione> prenotazioni, ArrayList<Tesserato> tesserati,
+                                  int indice, ConsoleInputManager in, ConsoleOutputManager out) {
+        Prenotazione prenotazione = prenotazioni.remove(indice - 1);
+        prenotazione.removeGiocatori();
+        Tesserato.Ordinamento temp = ordinamentoTesserato;
+        if (ordinamentoTesserato != Tesserato.Ordinamento.NUMEROTESSERA) {
+            ordinamentoTesserato = Tesserato.Ordinamento.NUMEROTESSERA;
+            ordinaTesserati(tesserati);
+        }
+        for (int i = 1; i <= prenotazione.getCampo().getMaxGiocatori(); i++) {
+            Tesserato t;
+            boolean inserito = false;
+            do {
+                int scelta = in.readInt("\nGiocatore " + i + ": ");
+                try {
+                    t = tesserati.get(scelta - 1);
+                    inserito = prenotazione.addGiocatore(t);
+                    if (!inserito) {
+                        out.println("Giocatore già inserito, riprova");
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    out.println("Inserimento non valido, riprova");
+                }
+            } while (!inserito);
+        }
+        if (temp != ordinamentoTesserato) {
+            ordinamentoTesserato = temp;
+            ordinaTesserati(tesserati);
+        }
+        prenotazioni.add(indice - 1, prenotazione);
+        out.println("Prenotazione modificata!");
+    }
+
+    static void modificaDataOra(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi, int indice,
+                                ConsoleInputManager in, ConsoleOutputManager out) {
+        Prenotazione prenotazione = prenotazioni.remove(indice - 1);
+        ArrayList<CampoDaGioco> estratti = estraiCampi(campi, prenotazione.getCampo().getTipo());
+        int oraInizio;
+        Data data;
+        boolean flag = false;
+        do {
+            Data oggi = new Data();
+            data = new Data(in.readLine("Inserisci la data: "));
+            oraInizio = in.readInt("Inserisci l'ora di inizio (ogni prenotazione vale un'ora soltanto): ");
+            if ((data.isMaggiore(oggi) || data.equals(oggi)) && oraInizio <= 21 && oraInizio >= 9) {
+                if (oraInizio != prenotazione.getOraInizio() || !data.equals(prenotazione.getData())) {
+                    flag = true;
+                } else {
+                    out.println("Hai inserito la stessa data della prenotazione che vuoi modificare, riprova!");
+                }
+            } else {
+                out.println("Inserimento non valido, riprova");
+            }
+        } while (!flag);
+        boolean occupato = false;
+        Prenotazione nuovaPrenotazione = prenotazione;
+        nuovaPrenotazione.setData(data);
+        nuovaPrenotazione.setOraInizio(oraInizio);
+        if (!prenotazioni.isEmpty()) {
+            for (CampoDaGioco c : estratti) {
+                occupato = false;
+                nuovaPrenotazione.setCampo(c);
+                for (Prenotazione p : prenotazioni) {
+                    if (p.equals(nuovaPrenotazione)) {
+                        occupato = true;
+                        break;
+                    }
+                }
+                if (!occupato) {
+                    break;
+                }
+            }
+        }
+        if (!occupato) {
+            prenotazioni.add(indice - 1, nuovaPrenotazione);
+            out.println("Prenotazione modificata!");
+        } else {
+            out.println("Mi dispiace! Nessun campo libero in questo slot");
+            prenotazioni.add(indice - 1, prenotazione);
+        }
     }
 }

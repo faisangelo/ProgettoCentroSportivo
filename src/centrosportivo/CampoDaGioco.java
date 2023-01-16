@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
     private final int codCampo;
-    private int maxGiocatori;
-    private TipoCampo tipo;
+    private  int maxGiocatori;
+    private final TipoCampo tipo;
     private static Integer proxCodCampo;
 
     public CampoDaGioco(TipoCampo tipo) {
@@ -32,14 +32,6 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
 
     public int getMaxGiocatori() {
         return maxGiocatori;
-    }
-
-    public void setTipo(TipoCampo tipo) {
-        this.tipo = tipo;
-    }
-
-    public void setMaxGiocatori(int maxGiocatori) {
-        this.maxGiocatori = maxGiocatori;
     }
 
     @Override

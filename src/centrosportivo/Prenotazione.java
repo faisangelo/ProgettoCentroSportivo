@@ -29,8 +29,8 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
         return false;
     }
 
-    public boolean removeGiocatore(Tesserato t) {
-        return giocatori.remove(t);
+    public void removeGiocatori() {
+        giocatori.clear();
     }
 
     public Data getData() {
