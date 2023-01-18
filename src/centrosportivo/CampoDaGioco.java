@@ -22,6 +22,14 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
         }
     }
 
+    public static Integer getProxCodCampo(){
+        return proxCodCampo;
+    }
+
+    public static void setProxCodCampo(Integer proxCodCampo){
+        CampoDaGioco.proxCodCampo = proxCodCampo;
+    }
+
     public int getCodCampo() {
         return codCampo;
     }

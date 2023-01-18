@@ -16,6 +16,14 @@ public class Tesserato implements Comparable<Tesserato>, Serializable {
         this.cognome = cognome;
     }
 
+    public static Integer getProxNumTessera(){
+        return proxNumTessera;
+    }
+
+    public static void setProxNumTessera(Integer proxNumTessera){
+        Tesserato.proxNumTessera = proxNumTessera;
+    }
+
     public int getNumTessera() {
         return numTessera;
     }
