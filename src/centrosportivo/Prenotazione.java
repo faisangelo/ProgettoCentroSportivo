@@ -18,6 +18,13 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
         giocatori = new ArrayList<>();
     }
 
+    public Prenotazione(Prenotazione altra) {
+        campo = altra.campo;
+        data = altra.data;
+        oraInizio = altra.oraInizio;
+        giocatori = altra.giocatori;
+    }
+
     public CampoDaGioco getCampo() {
         return campo;
     }
