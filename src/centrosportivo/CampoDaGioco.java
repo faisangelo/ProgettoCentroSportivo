@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
     private final int codCampo;
-    private  int maxGiocatori;
+    private final int maxGiocatori;
     private final TipoCampo tipo;
     private static Integer proxCodCampo;
 
@@ -19,6 +19,7 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
             case PADEL -> maxGiocatori = 4;
             case BASKET, CALCETTO -> maxGiocatori = 10;
             case CALCIOTTO -> maxGiocatori = 16;
+            default -> maxGiocatori = 0;
         }
     }
 

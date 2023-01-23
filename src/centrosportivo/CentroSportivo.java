@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class CentroSportivo {
     static final String nomeFileStato = "centrosportivo.bin";
-    static int righePagina = 15;
+    static final int righePagina = 10;
     static Tesserato.Ordinamento ordinamentoTesserato = Tesserato.Ordinamento.COGNOME;
     static CampoDaGioco.Ordinamento ordinamentoCampo = CampoDaGioco.Ordinamento.CODCAMPO;
     static Prenotazione.Ordinamento ordinamentoPrenotazione = Prenotazione.Ordinamento.DATA;
@@ -57,7 +57,7 @@ public class CentroSportivo {
         in.readLine("[INVIO] per accedere al menu");
         int scelta;
         do {
-            out.println("\n*** CENTRO SPORTIVO ***"); //menu provvisorio
+            out.println("\n\t\t\t\t\t*** CENTRO SPORTIVO ***\n"); //menu provvisorio
             out.print("1) Scorri elenco tesserati          ");
             out.println("8) Cancella una prenotazione");
             out.print("2) Scorri elenco campi da gioco     ");
@@ -71,7 +71,7 @@ public class CentroSportivo {
             out.print("6) Ordina le prenotazioni           ");
             out.println("13) Modifica elenco campi");
             out.println("7) Prenota un campo da gioco");
-            out.println("\n0 per uscire");
+            out.println("\n[0] per uscire");
             boolean flag = false;
             do {
                 scelta = in.readInt("\nScegli [0 - 13]: ");
@@ -165,7 +165,7 @@ public class CentroSportivo {
         if (!tesserati.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
             do {
                 for (i = 0; i < righePagina && i + pos < tesserati.size(); i++) {
                     out.println(tesserati.get(pos + i).toString());
@@ -173,23 +173,32 @@ public class CentroSportivo {
                 if (i + pos >= tesserati.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per uscire: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per uscire: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
         } else {
@@ -203,7 +212,7 @@ public class CentroSportivo {
         if (!campi.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
             do {
                 for (i = 0; i < righePagina && i + pos < campi.size(); i++) {
                     out.println(campi.get(pos + i).toString());
@@ -211,23 +220,32 @@ public class CentroSportivo {
                 if (i + pos >= campi.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per uscire: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per uscire: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
         } else {
@@ -241,31 +259,40 @@ public class CentroSportivo {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
             do {
                 for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
-                    out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+                    out.println(i + 1 + pos + ") " + prenotazioni.get(pos + i).toString());
                 }
                 if (i + pos >= prenotazioni.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per uscire: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per uscire: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per uscire: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per uscire: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
         } else {
@@ -491,15 +518,13 @@ public class CentroSportivo {
                     boolean inserito = false;
                     do {
                         int scelta = in.readInt("\nGiocatore " + j + ": ");
-                        try {
-                            if (tesseratiMap.containsKey(scelta)) {
-                                inserito = prenotazione.addGiocatore(tesseratiMap.get(scelta));
-                            }
-                            if (!inserito) {
-                                out.println("Giocatore già inserito o non esistente, riprova\n");
-                            }
-                        } catch (IndexOutOfBoundsException e) {
-                            out.println("Inserimento non valido, riprova\n");
+                        if (tesseratiMap.containsKey(scelta)) {
+                            inserito = prenotazione.addGiocatore(tesseratiMap.get(scelta));
+                        }
+                        if (!inserito) {
+                            out.println("Giocatore già inserito o non esistente, riprova");
+                        } else {
+                            out.println(tesseratiMap.get(scelta).toString() + " inserito/a!");
                         }
                     } while (!inserito);
                 }
@@ -534,39 +559,55 @@ public class CentroSportivo {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
             do {
                 for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
-                    out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+                    out.println(i + 1 + pos + ") " + prenotazioni.get(pos + i).toString());
                 }
                 if (i + pos >= prenotazioni.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per confermare pagina: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per confermare pagina: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
-            boolean flag = false;
+            flag = false;
+            Data oggi = new Data();
+            Orario ora = new Orario();
             do {
                 int scelta = in.readInt("Inserisci il numero della prenotazione che vuoi cancellare: ");
                 if (scelta > pos && scelta <= pos + i) {
-                    prenotazioni.remove(scelta - 1);
-                    out.println("\nPrenotazione cancellata!");
+                    if (!(prenotazioni.get(scelta - 1).getData().equals(oggi) &&
+                            prenotazioni.get(scelta - 1).getOraInizio() - ora.getOre() < 5)) {
+                        prenotazioni.remove(scelta - 1);
+                        out.println("\nPrenotazione cancellata!");
+                    } else {
+                        out.println("\nPuoi cancellare una prenotazione fino a 4 ore prima!");
+                    }
                     flag = true;
                 } else {
                     out.println("Inserimento non valido, riprova!\n");
@@ -584,40 +625,61 @@ public class CentroSportivo {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
             do {
                 for (i = 0; i < righePagina && i + pos < prenotazioni.size(); i++) {
-                    out.println(i + 1 + ") " + prenotazioni.get(pos + i).toString());
+                    out.println(i + 1 + pos + ") " + prenotazioni.get(pos + i).toString());
                 }
                 if (i + pos >= prenotazioni.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per confermare pagina: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per confermare pagina: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
-            boolean flag = false;
+            flag = false;
+            int indice;
             do {
-                int indice = in.readInt("Inserisci il numero della prenotazione che vuoi modificare: ");
+                indice = in.readInt("Inserisci il numero della prenotazione che vuoi modificare: ");
                 if (indice > pos && indice <= pos + i) {
-                    out.println("Cosa vuoi modificare?\n");
-                    out.println("1) Giocatori");
-                    out.println("2) Data e ora");
+                    flag = true;
+                } else {
+                    out.println("Inserimento non valido, riprova!\n");
+                }
+            } while (!flag);
+            Data oggi = new Data();
+            Orario ora = new Orario();
+            flag = false;
+            if (!(prenotazioni.get(indice - 1).getData().equals(oggi) &&
+                    prenotazioni.get(indice - 1).getOraInizio() - ora.getOre() < 5)) {
+                out.println("Cosa vuoi modificare?\n");
+                out.println("1) Giocatori");
+                out.println("2) Data e ora");
+                do {
                     int scelta = in.readInt("\nScegli [1 - 2]: ");
                     if (scelta == 1 || scelta == 2) {
                         switch (scelta) {
@@ -626,19 +688,18 @@ public class CentroSportivo {
                         }
                         flag = true;
                     } else {
-                        out.println("Inserimento non valido, riprova!\n");
+                        out.println("Inserimento non valido, riprova!");
                     }
-                } else {
-                    out.println("Inserimento non valido, riprova!\n");
-                }
-            } while (!flag);
+                } while (!flag);
+            } else {
+                out.println("\nPuoi modificare una prenotazione fino a 4 ore prima!");
+            }
         } else {
             out.println("\nMi dispiace, non ci sono prenotazioni!");
         }
         ordinaPrenotazioni(prenotazioni);
         in.readLine("[INVIO] per tornare al menu");
     }
-
 
     static void modificaGiocatori(ArrayList<Prenotazione> prenotazioni, ArrayList<Tesserato> tesserati,
                                   int indice, ConsoleInputManager in, ConsoleOutputManager out) {
@@ -648,19 +709,18 @@ public class CentroSportivo {
         for (Tesserato tess : tesserati) {
             tesseratiMap.put(tess.getNumTessera(), tess);
         }
+        out.println("Inserisci i numeri tessera dei giocatori:");
         for (int i = 1; i <= prenotazione.getCampo().getMaxGiocatori(); i++) {
             boolean inserito = false;
             do {
                 int scelta = in.readInt("\nGiocatore " + i + ": ");
-                try {
-                    if (tesseratiMap.containsKey(scelta)) {
-                        inserito = prenotazione.addGiocatore(tesseratiMap.get(scelta));
-                    }
-                    if (!inserito) {
-                        out.println("Giocatore già inserito o non esistente, riprova");
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    out.println("Inserimento non valido, riprova");
+                if (tesseratiMap.containsKey(scelta)) {
+                    inserito = prenotazione.addGiocatore(tesseratiMap.get(scelta));
+                }
+                if (!inserito) {
+                    out.println("Giocatore già inserito o non esistente, riprova");
+                } else {
+                    out.println(tesseratiMap.get(scelta).toString() + " inserito/a!");
                 }
             } while (!inserito);
         }
@@ -673,13 +733,12 @@ public class CentroSportivo {
         Prenotazione prenotazione = prenotazioni.remove(indice - 1);
         ArrayList<CampoDaGioco> estratti = estraiCampi(campi, prenotazione.getCampo().getTipo());
         int oraInizio;
-        Data data = null;
+        Data data = null, oggi = new Data();
+        Orario ora = new Orario();
         boolean flag;
         out.println();
         do {
             flag = false;
-            Data oggi = new Data();
-            Orario ora = new Orario();
             do {
                 try {
                     data = new Data(in.readLine("Inserisci la data: "));
@@ -693,7 +752,12 @@ public class CentroSportivo {
             if ((data.isMaggiore(oggi) && oraInizio <= 21 && oraInizio >= 9) ||
                     (data.equals(oggi) && oraInizio <= 21 && oraInizio > ora.getOre())) {
                 if (oraInizio != prenotazione.getOraInizio() || !data.equals(prenotazione.getData())) {
-                    flag = true;
+                    Data fraDieciGiorni = new Data(oggi.getGiorno() + 10, oggi.getMese(), oggi.getAnno());
+                    if (data.isMinore(fraDieciGiorni) || data.equals(fraDieciGiorni)) {
+                        flag = true;
+                    } else {
+                        out.println("Puoi prenotare fino a 10 giorni prima, riprova\n");
+                    }
                 } else {
                     out.println("Hai inserito la stessa data della prenotazione che vuoi modificare, riprova!\n");
                 }
@@ -891,10 +955,10 @@ public class CentroSportivo {
     static void modificaElencoTesserati(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni,
                                         ConsoleInputManager in, ConsoleOutputManager out) {
         boolean flag = false;
+        out.println("Cosa vuoi fare?\n");
+        out.println("1) Aggiungi dei tesserati");
+        out.println("2) Elimina un tesserato");
         do {
-            out.println("Cosa vuoi fare?\n");
-            out.println("1) Aggiungi dei tesserati");
-            out.println("2) Elimina dei tesserati");
             int scelta = in.readInt("\nScegli [1 - 2]: ");
             if (scelta == 1 || scelta == 2) {
                 flag = true;
@@ -902,7 +966,6 @@ public class CentroSportivo {
                     case 1 -> aggiungiTesserati(tesserati, in, out);
                     case 2 -> eliminaTesserati(tesserati, prenotazioni, in, out);
                 }
-
             } else {
                 out.println("Inserimento non valido, riprova!");
             }
@@ -930,54 +993,65 @@ public class CentroSportivo {
         if (!tesserati.isEmpty()) {
             int pos = 0, i;
             char c;
-            boolean fineElenco = false;
+            boolean fineElenco = false, flag;
+            out.println();
             do {
                 for (i = 0; i < righePagina && i + pos < tesserati.size(); i++) {
-                    out.println(i + 1 + ") " + tesserati.get(pos + i).toString());
+                    out.println(i + 1 + pos + ") " + tesserati.get(pos + i).toString());
                 }
                 if (i + pos >= tesserati.size()) {
                     fineElenco = true;
                 }
-                if (pos > 0 && !fineElenco) {
-                    c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos > 0) {
-                    c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
-                } else if (fineElenco && pos == 0) {
-                    c = in.readChar("\n[0] per confermare pagina: ");
-                } else {
-                    c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
-                }
-                if (c == '+' && !fineElenco) {
-                    pos += righePagina;
-                } else if (c == '-' && pos > 0) {
-                    pos -= righePagina;
-                    if (fineElenco) {
-                        fineElenco = false;
+                do {
+                    flag = false;
+                    if (pos > 0 && !fineElenco) {
+                        c = in.readChar("\n[+] per andare avanti, [-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos > 0) {
+                        c = in.readChar("\n[-] per tornare indietro, [0] per confermare pagina: ");
+                    } else if (fineElenco && pos == 0) {
+                        c = in.readChar("\n[0] per confermare pagina: ");
+                    } else {
+                        c = in.readChar("\n[+] per andare avanti, [0] per confermare pagina: ");
                     }
-                }
+                    if (c == '+' && !fineElenco) {
+                        pos += righePagina;
+                        flag = true;
+                    } else if (c == '-' && pos > 0) {
+                        pos -= righePagina;
+                        if (fineElenco) {
+                            fineElenco = false;
+                        }
+                        flag = true;
+                    } else if (c == '0') {
+                        flag = true;
+                    } else {
+                        out.println("Inserimento non valido, riprova!");
+                    }
+                } while (!flag);
                 out.println();
             } while (c != '0');
-            boolean flag = false;
+            flag = false;
             boolean protetto = false;
+            int scelta;
             do {
-                int scelta = in.readInt("Inserisci il numero d'elenco del tesserato che vuoi eliminare: ");
+                scelta = in.readInt("Inserisci il numero d'elenco del tesserato che vuoi eliminare: ");
                 if (scelta > pos && scelta <= pos + i) {
-                    for (Prenotazione p : prenotazioni) {
-                        if (p.getGiocatori().contains(tesserati.get(scelta - 1))) {
-                            protetto = true;
-                            break;
-                        }
-                    }
-                    if (protetto) {
-                        out.println("\nImpossibile eliminare il tesserato scelto, una o più prenotazioni a suo nome!");
-                        break;
-                    }
-                    out.println("\n" + tesserati.remove(scelta - 1) + " eliminato/a!");
                     flag = true;
                 } else {
                     out.println("Inserimento non valido, riprova!\n");
                 }
             } while (!flag);
+            for (Prenotazione p : prenotazioni) {
+                if (p.getGiocatori().contains(tesserati.get(scelta - 1))) {
+                    protetto = true;
+                    break;
+                }
+            }
+            if (protetto) {
+                out.println("\nImpossibile eliminare il tesserato scelto, una o più prenotazioni a suo nome!");
+            } else {
+                out.println("\n" + tesserati.remove(scelta - 1) + " eliminato/a!");
+            }
         } else {
             out.println("\nMi dispiace, non ci sono tesserati!");
         }
@@ -986,10 +1060,10 @@ public class CentroSportivo {
     static void modificaElencoCampi(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni,
                                     ConsoleInputManager in, ConsoleOutputManager out) {
         boolean flag = false;
+        out.println("Cosa vuoi fare?\n");
+        out.println("1) Aggiungi dei campi");
+        out.println("2) Elimina un campo");
         do {
-            out.println("Cosa vuoi fare?\n");
-            out.println("1) Aggiungi dei campi");
-            out.println("2) Elimina dei campi");
             int scelta = in.readInt("\nScegli [1 - 2]: ");
             if (scelta == 1 || scelta == 2) {
                 flag = true;
@@ -997,7 +1071,6 @@ public class CentroSportivo {
                     case 1 -> aggiungiCampi(campi, in, out);
                     case 2 -> eliminaCampi(campi, prenotazioni, in, out);
                 }
-
             } else {
                 out.println("Inserimento non valido, riprova!");
             }
@@ -1040,7 +1113,7 @@ public class CentroSportivo {
         ArrayList<Prenotazione> prenotazioniCampo;
         TipoCampo[] tipi = TipoCampo.values();
         TipoCampo tipo = null;
-        out.println("Che tipo di campo vuoi eliminare?\n");
+        out.println("\nChe tipo di campo vuoi eliminare?\n");
         int i = 1;
         for (TipoCampo t : tipi) {
             out.println(i + ") " + t.toString());

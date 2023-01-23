@@ -9,7 +9,7 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     private CampoDaGioco campo;
     private Data data;
     private int oraInizio;
-    private ArrayList<Tesserato> giocatori;
+    private final ArrayList<Tesserato> giocatori;
 
     public Prenotazione(CampoDaGioco campo, Data data, int oraInizio) {
         this.campo = campo;
@@ -67,7 +67,7 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
     @Override
     public String toString() {
         return "Prenotazione effettuata da: " + giocatori.toString() +
-                ", Campo " + campo.toString() +
+                "\nCampo " + campo.toString() +
                 ", Data e ora di inizio: " + data.toString() + " alle " + oraInizio;
     }
 
