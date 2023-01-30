@@ -43,7 +43,7 @@ public class Tesserato implements Comparable<Tesserato>, Serializable {
 
     @Override
     public int compareTo(Tesserato t) {
-        return this.cognome.compareTo(t.cognome);
+        return this.cognome.compareToIgnoreCase(t.cognome);
     }
 
     public enum Ordinamento {

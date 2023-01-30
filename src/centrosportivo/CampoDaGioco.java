@@ -50,7 +50,7 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
 
     @Override
     public String toString() {
-        return codCampo + ": " + tipo;
+        return "#" + codCampo + ": " + tipo;
     }
 
     public enum Ordinamento {

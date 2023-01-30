@@ -15,17 +15,19 @@ import java.util.HashMap;
 public class CentroSportivo {
     static final String nomeFileStato = "centrosportivo.bin";
     static final int righePagina = 10;
+    static ConsoleInputManager in;
+    static ConsoleOutputManager out;
     static Tesserato.Ordinamento ordinamentoTesserato = Tesserato.Ordinamento.COGNOME;
     static CampoDaGioco.Ordinamento ordinamentoCampo = CampoDaGioco.Ordinamento.CODCAMPO;
     static Prenotazione.Ordinamento ordinamentoPrenotazione = Prenotazione.Ordinamento.DATA;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        ConsoleOutputManager out = new ConsoleOutputManager();
-        ConsoleInputManager in = new ConsoleInputManager();
-        Data.setSeparatore('/');
+        in = new ConsoleInputManager();
+        out = new ConsoleOutputManager();
         ArrayList<Tesserato> tesserati;
         ArrayList<CampoDaGioco> campi;
         ArrayList<Prenotazione> prenotazioni;
+        Data.setSeparatore('/');
         out.println("Carico file di stato: " + nomeFileStato);
         try {
             FileInputStream fis = new FileInputStream(nomeFileStato);
@@ -47,17 +49,19 @@ public class CentroSportivo {
                         (p.getData().equals(data) && p.getOraInizio() < ora.getOre()));  //cancella le prenotazioni passate
             }
         } catch (FileNotFoundException f) {
-            out.println("File non trovato, passo all'inserimento dei dati\n");
-            tesserati = inserisciTesserati(in, out);
+            in.readLine("File non trovato!\n[INVIO] per passare all'inserimento dei dati");
+            tesserati = new ArrayList<>();
+            campi = new ArrayList<>();
+            prenotazioni = new ArrayList<>();
+            inserisciTesserati(tesserati, true);
             ordinaTesserati(tesserati);
             out.println();
-            campi = inserisciCampi(in, out);
-            prenotazioni = new ArrayList<>();
+            inserisciCampi(campi, true);
         }
         in.readLine("[INVIO] per accedere al menu");
         int scelta;
         do {
-            out.println("\n\t\t\t\t\t*** CENTRO SPORTIVO ***\n"); //menu provvisorio
+            out.println("\n\t\t\t\t\t*** CENTRO SPORTIVO ***\n");
             out.print("1) Scorri elenco tesserati          ");
             out.println("8) Cancella una prenotazione");
             out.print("2) Scorri elenco campi da gioco     ");
@@ -70,72 +74,70 @@ public class CentroSportivo {
             out.println("12) Modifica elenco tesserati");
             out.print("6) Ordina le prenotazioni           ");
             out.println("13) Modifica elenco campi");
-            out.println("7) Prenota un campo da gioco");
-            out.println("\n[0] per uscire");
+            out.print("7) Prenota un campo da gioco        ");
+            out.println("14) Salva lo stato nel file");
+            out.println("\n[0] per uscire (salvataggio automatico)");
             boolean flag = false;
             do {
-                scelta = in.readInt("\nScegli [0 - 13]: ");
-                if (0 <= scelta && scelta <= 13) {
+                scelta = in.readInt("\nScegli [0 - 14]: ");
+                if (0 <= scelta && scelta <= 14) {
                     out.println();
                     flag = true;
                     switch (scelta) {
-                        case 1 -> stampaTesserati(tesserati, in, out);
-                        case 2 -> stampaCampi(campi, in, out);
-                        case 3 -> stampaPrenotazioni(prenotazioni, in, out);
-                        case 4 -> stampaTesseratiOrdinati(tesserati, in, out);
-                        case 5 -> stampaCampiOrdinati(campi, in, out);
-                        case 6 -> stampaPrenotazioniOrdinate(prenotazioni, in, out);
-                        case 7 -> effettuaPrenotazione(prenotazioni, campi, tesserati, in, out);
-                        case 8 -> cancellaPrenotazione(prenotazioni, in, out);
-                        case 9 -> modificaPrenotazione(prenotazioni, campi, tesserati, in, out);
-                        case 10 -> primoSlotLibero(prenotazioni, campi, in, out);
-                        case 11 -> campiSlotScelto(prenotazioni, campi, in, out);
-                        case 12 -> modificaElencoTesserati(tesserati, prenotazioni, in, out);
-                        case 13 -> modificaElencoCampi(campi, prenotazioni, in, out);
+                        case 1 -> stampaTesserati(tesserati);
+                        case 2 -> stampaCampi(campi);
+                        case 3 -> stampaPrenotazioni(prenotazioni);
+                        case 4 -> stampaTesseratiOrdinati(tesserati);
+                        case 5 -> stampaCampiOrdinati(campi);
+                        case 6 -> stampaPrenotazioniOrdinate(prenotazioni);
+                        case 7 -> effettuaPrenotazione(tesserati, campi, prenotazioni);
+                        case 8 -> cancellaPrenotazione(prenotazioni);
+                        case 9 -> modificaPrenotazione(tesserati, campi, prenotazioni);
+                        case 10 -> primoSlotLibero(campi, prenotazioni);
+                        case 11 -> campiSlotScelto(campi, prenotazioni);
+                        case 12 -> modificaElencoTesserati(tesserati, prenotazioni);
+                        case 13 -> modificaElencoCampi(campi, prenotazioni);
+                        case 14 -> salvaStato(tesserati, campi, prenotazioni, false);
                     }
                 } else {
                     out.println("Inserimento non valido, riprova!");
                 }
             } while (!flag);
         } while (scelta != 0);
-        out.println("\nSalvo lo stato nel file: " + nomeFileStato);
-        FileOutputStream fos = new FileOutputStream(nomeFileStato);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(tesserati);
-        oos.writeObject(campi);
-        oos.writeObject(prenotazioni);
-        oos.writeObject(Tesserato.getProxNumTessera());
-        oos.writeObject(CampoDaGioco.getProxCodCampo());
-        oos.writeObject(ordinamentoTesserato);
-        oos.writeObject(ordinamentoCampo);
-        oos.writeObject(ordinamentoPrenotazione);
-        oos.flush();
-        oos.close();
-        fos.close();
+        salvaStato(tesserati, campi, prenotazioni, true);
+        in.close();
+        out.close();
     }
 
-    static ArrayList<Tesserato> inserisciTesserati(ConsoleInputManager in, ConsoleOutputManager out) {
-        ArrayList<Tesserato> tesserati = new ArrayList<>();
+    static void inserisciTesserati(ArrayList<Tesserato> tesserati, boolean fileNonTrovato) {
         boolean continua;
         String nome, cognome;
-        out.println("*** INSERIMENTO TESSERATI ***");
+        if (fileNonTrovato) {
+            out.println("\n*** INSERIMENTO TESSERATI ***");
+        }
         do {
             nome = in.readLine("\nInserisci nome: ");
             cognome = in.readLine("Inserisci cognome: ");
-            Tesserato t = new Tesserato(nome, cognome);
-            tesserati.add(t);
-            out.println("\nTesserato inserito! Numero tessera: " + t.getNumTessera());
-            continua = !in.readSiNo("Finito? [s] [n]: ");
+            if (nome.isBlank() || cognome.isBlank()) {
+                out.println("\nNome e/o cognome non validi, riprova!");
+                continua = true;
+            } else {
+                Tesserato t = new Tesserato(nome, cognome);
+                tesserati.add(t);
+                out.println("\nTesserato inserito! Numero tessera: " + t.getNumTessera());
+                continua = !in.readSiNo("Finito? [s] [n]: ");
+            }
         } while (continua);
-        return tesserati;
+        ordinaTesserati(tesserati);
     }
 
-    static ArrayList<CampoDaGioco> inserisciCampi(ConsoleInputManager in, ConsoleOutputManager out) {
-        ArrayList<CampoDaGioco> campi = new ArrayList<>();
+    static void inserisciCampi(ArrayList<CampoDaGioco> campi, boolean fileNonTrovato) {
         boolean continua;
         TipoCampo[] tipi = TipoCampo.values();
         CampoDaGioco campo = null;
-        out.println("*** INSERIMENTO CAMPI DA GIOCO ***");
+        if (fileNonTrovato) {
+            out.println("*** INSERIMENTO CAMPI DA GIOCO ***");
+        }
         do {
             out.println();
             int i = 1;
@@ -157,11 +159,10 @@ public class CentroSportivo {
             out.println("Campo da gioco inserito! Codice campo: " + campo.getCodCampo());
             continua = !in.readSiNo("Finito? [s] [n]: ");
         } while (continua);
-        return campi;
+        ordinaCampi(campi);
     }
 
-    static void stampaTesserati(ArrayList<Tesserato> tesserati, ConsoleInputManager in,
-                                ConsoleOutputManager out) {
+    static void stampaTesserati(ArrayList<Tesserato> tesserati) {
         if (!tesserati.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -207,8 +208,7 @@ public class CentroSportivo {
         }
     }
 
-    static void stampaCampi(ArrayList<CampoDaGioco> campi, ConsoleInputManager in,
-                            ConsoleOutputManager out) {
+    static void stampaCampi(ArrayList<CampoDaGioco> campi) {
         if (!campi.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -254,8 +254,7 @@ public class CentroSportivo {
         }
     }
 
-    static void stampaPrenotazioni(ArrayList<Prenotazione> prenotazioni, ConsoleInputManager in,
-                                   ConsoleOutputManager out) {
+    static void stampaPrenotazioni(ArrayList<Prenotazione> prenotazioni) {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -301,8 +300,7 @@ public class CentroSportivo {
         }
     }
 
-    static void stampaTesseratiOrdinati(ArrayList<Tesserato> tesserati, ConsoleInputManager in,
-                                        ConsoleOutputManager out) {
+    static void stampaTesseratiOrdinati(ArrayList<Tesserato> tesserati) {
         if (!tesserati.isEmpty()) {
             Tesserato.Ordinamento[] ordinamenti = Tesserato.Ordinamento.values();
             int i = 1;
@@ -322,7 +320,7 @@ public class CentroSportivo {
             } while (!flag);
             ordinaTesserati(tesserati);
             in.readLine("[INVIO] per visualizzare\n");
-            stampaTesserati(tesserati, in, out);
+            stampaTesserati(tesserati);
         } else {
             out.println("Mi dispiace, non ci sono tesserati!");
             in.readLine("[INVIO] per tornare al menu");
@@ -347,8 +345,7 @@ public class CentroSportivo {
         }
     }
 
-    static void stampaCampiOrdinati(ArrayList<CampoDaGioco> campi, ConsoleInputManager in,
-                                    ConsoleOutputManager out) {
+    static void stampaCampiOrdinati(ArrayList<CampoDaGioco> campi) {
         if (!campi.isEmpty()) {
             CampoDaGioco.Ordinamento[] ordinamenti = CampoDaGioco.Ordinamento.values();
             int i = 1;
@@ -368,7 +365,7 @@ public class CentroSportivo {
             } while (!flag);
             ordinaCampi(campi);
             in.readLine("[INVIO] per visualizzare\n");
-            stampaCampi(campi, in, out);
+            stampaCampi(campi);
         } else {
             out.println("Mi dispiace, non ci sono campi!");
             in.readLine("[INVIO] per tornare al menu");
@@ -387,8 +384,7 @@ public class CentroSportivo {
         }
     }
 
-    static void stampaPrenotazioniOrdinate(ArrayList<Prenotazione> prenotazioni, ConsoleInputManager in,
-                                           ConsoleOutputManager out) {
+    static void stampaPrenotazioniOrdinate(ArrayList<Prenotazione> prenotazioni) {
         if (!prenotazioni.isEmpty()) {
             Prenotazione.Ordinamento[] ordinamenti = Prenotazione.Ordinamento.values();
             int i = 1;
@@ -408,7 +404,7 @@ public class CentroSportivo {
             } while (!flag);
             ordinaPrenotazioni(prenotazioni);
             in.readLine("[INVIO] per visualizzare\n");
-            stampaPrenotazioni(prenotazioni, in, out);
+            stampaPrenotazioni(prenotazioni);
         } else {
             out.println("Mi dispiace, non ci sono prenotazioni!");
             in.readLine("[INVIO] per tornare al menu");
@@ -433,8 +429,8 @@ public class CentroSportivo {
         }
     }
 
-    static void effettuaPrenotazione(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
-                                     ArrayList<Tesserato> tesserati, ConsoleInputManager in, ConsoleOutputManager out) {
+    static void effettuaPrenotazione(ArrayList<Tesserato> tesserati, ArrayList<CampoDaGioco> campi,
+                                     ArrayList<Prenotazione> prenotazioni) {
         ArrayList<CampoDaGioco> estratti;
         Data data = null;
         int oraInizio;
@@ -532,7 +528,7 @@ public class CentroSportivo {
                 ordinaPrenotazioni(prenotazioni);
                 out.println("\nPrenotazione confermata! Visualizzo le prenotazioni");
                 in.readLine("[INVIO] per visualizzare\n");
-                stampaPrenotazioni(prenotazioni, in, out);
+                stampaPrenotazioni(prenotazioni);
             } else {
                 out.println("\nMi dispiace! Nessun campo libero in questo slot");
                 in.readLine("[INVIO] per tornare al menu");
@@ -554,8 +550,7 @@ public class CentroSportivo {
         return estratti;
     }
 
-    static void cancellaPrenotazione(ArrayList<Prenotazione> prenotazioni, ConsoleInputManager in,
-                                     ConsoleOutputManager out) {
+    static void cancellaPrenotazione(ArrayList<Prenotazione> prenotazioni) {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -615,13 +610,13 @@ public class CentroSportivo {
             } while (!flag);
             in.readLine("[INVIO] per tornare al menu");
         } else {
-            out.println("\nMi dispiace, non ci sono prenotazioni!");
+            out.println("Mi dispiace, non ci sono prenotazioni!");
             in.readLine("[INVIO] per tornare al menu");
         }
     }
 
-    static void modificaPrenotazione(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
-                                     ArrayList<Tesserato> tesserati, ConsoleInputManager in, ConsoleOutputManager out) {
+    static void modificaPrenotazione(ArrayList<Tesserato> tesserati, ArrayList<CampoDaGioco> campi,
+                                     ArrayList<Prenotazione> prenotazioni) {
         if (!prenotazioni.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -683,8 +678,8 @@ public class CentroSportivo {
                     int scelta = in.readInt("\nScegli [1 - 2]: ");
                     if (scelta == 1 || scelta == 2) {
                         switch (scelta) {
-                            case 1 -> modificaGiocatori(prenotazioni, tesserati, indice, in, out);
-                            case 2 -> modificaDataOra(prenotazioni, campi, indice, in, out);
+                            case 1 -> modificaGiocatori(tesserati, prenotazioni, indice);
+                            case 2 -> modificaDataOra(campi, prenotazioni, indice);
                         }
                         flag = true;
                     } else {
@@ -695,14 +690,13 @@ public class CentroSportivo {
                 out.println("\nPuoi modificare una prenotazione fino a 4 ore prima!");
             }
         } else {
-            out.println("\nMi dispiace, non ci sono prenotazioni!");
+            out.println("Mi dispiace, non ci sono prenotazioni!");
         }
         ordinaPrenotazioni(prenotazioni);
         in.readLine("[INVIO] per tornare al menu");
     }
 
-    static void modificaGiocatori(ArrayList<Prenotazione> prenotazioni, ArrayList<Tesserato> tesserati,
-                                  int indice, ConsoleInputManager in, ConsoleOutputManager out) {
+    static void modificaGiocatori(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni, int indice) {
         Prenotazione prenotazione = prenotazioni.remove(indice - 1);
         prenotazione.removeGiocatori();
         HashMap<Integer, Tesserato> tesseratiMap = new HashMap<>();
@@ -728,8 +722,7 @@ public class CentroSportivo {
         out.println("\nPrenotazione modificata!");
     }
 
-    static void modificaDataOra(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi, int indice,
-                                ConsoleInputManager in, ConsoleOutputManager out) {
+    static void modificaDataOra(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni, int indice) {
         Prenotazione prenotazione = prenotazioni.remove(indice - 1);
         ArrayList<CampoDaGioco> estratti = estraiCampi(campi, prenotazione.getCampo().getTipo());
         int oraInizio;
@@ -798,8 +791,7 @@ public class CentroSportivo {
         }
     }
 
-    static void primoSlotLibero(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
-                                ConsoleInputManager in, ConsoleOutputManager out) {
+    static void primoSlotLibero(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni) {
         ArrayList<CampoDaGioco> estratti;
         TipoCampo[] tipi = TipoCampo.values();
         TipoCampo tipo = null;
@@ -828,8 +820,6 @@ public class CentroSportivo {
                 ordinamentoPrenotazione = Prenotazione.Ordinamento.DATA;
                 ordinaPrenotazioni(prenotazioniCampo);
                 ordinamentoPrenotazione = temp;
-            } else {
-                ordinaPrenotazioni(prenotazioniCampo);
             }
             Data data = new Data();
             Orario ora = new Orario();
@@ -864,13 +854,12 @@ public class CentroSportivo {
             out.println("\nPrimo slot libero per un campo da " + tipo.toString() +
                     ": " + data + " alle " + oraInizio);
         } else {
-            out.println("\nMi dispiace, non esistono campi del tipo selezionato!");
+            out.println("\nMi dispiace, non ci sono campi del tipo selezionato!");
         }
         in.readLine("[INVIO] per tornare al menu");
     }
 
-    static void campiSlotScelto(ArrayList<Prenotazione> prenotazioni, ArrayList<CampoDaGioco> campi,
-                                ConsoleInputManager in, ConsoleOutputManager out) {
+    static void campiSlotScelto(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni) {
         ArrayList<CampoDaGioco> estratti;
         Data data = null;
         int oraInizio;
@@ -947,13 +936,12 @@ public class CentroSportivo {
                 }
             }
         } else {
-            out.println("\nMi dispiace, non esistono campi del tipo selezionato!");
+            out.println("\nMi dispiace, non ci sono campi del tipo selezionato!");
         }
         in.readLine("[INVIO] per tornare al menu");
     }
 
-    static void modificaElencoTesserati(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni,
-                                        ConsoleInputManager in, ConsoleOutputManager out) {
+    static void modificaElencoTesserati(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni) {
         boolean flag = false;
         out.println("Cosa vuoi fare?\n");
         out.println("1) Aggiungi dei tesserati");
@@ -963,8 +951,8 @@ public class CentroSportivo {
             if (scelta == 1 || scelta == 2) {
                 flag = true;
                 switch (scelta) {
-                    case 1 -> aggiungiTesserati(tesserati, in, out);
-                    case 2 -> eliminaTesserati(tesserati, prenotazioni, in, out);
+                    case 1 -> inserisciTesserati(tesserati, false);
+                    case 2 -> eliminaTesserati(tesserati, prenotazioni);
                 }
             } else {
                 out.println("Inserimento non valido, riprova!");
@@ -973,23 +961,7 @@ public class CentroSportivo {
         in.readLine("[INVIO] per tornare al menu");
     }
 
-    static void aggiungiTesserati(ArrayList<Tesserato> tesserati, ConsoleInputManager in,
-                                  ConsoleOutputManager out) {
-        boolean continua;
-        String nome, cognome;
-        do {
-            nome = in.readLine("\nInserisci nome: ");
-            cognome = in.readLine("Inserisci cognome: ");
-            Tesserato t = new Tesserato(nome, cognome);
-            tesserati.add(t);
-            out.println("\nTesserato inserito! Numero tessera: " + t.getNumTessera());
-            continua = !in.readSiNo("Finito? [s] [n]: ");
-        } while (continua);
-        ordinaTesserati(tesserati);
-    }
-
-    static void eliminaTesserati(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni,
-                                 ConsoleInputManager in, ConsoleOutputManager out) {
+    static void eliminaTesserati(ArrayList<Tesserato> tesserati, ArrayList<Prenotazione> prenotazioni) {
         if (!tesserati.isEmpty()) {
             int pos = 0, i;
             char c;
@@ -1057,8 +1029,7 @@ public class CentroSportivo {
         }
     }
 
-    static void modificaElencoCampi(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni,
-                                    ConsoleInputManager in, ConsoleOutputManager out) {
+    static void modificaElencoCampi(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni) {
         boolean flag = false;
         out.println("Cosa vuoi fare?\n");
         out.println("1) Aggiungi dei campi");
@@ -1068,8 +1039,8 @@ public class CentroSportivo {
             if (scelta == 1 || scelta == 2) {
                 flag = true;
                 switch (scelta) {
-                    case 1 -> aggiungiCampi(campi, in, out);
-                    case 2 -> eliminaCampi(campi, prenotazioni, in, out);
+                    case 1 -> inserisciCampi(campi, false);
+                    case 2 -> eliminaCampi(campi, prenotazioni);
                 }
             } else {
                 out.println("Inserimento non valido, riprova!");
@@ -1078,37 +1049,7 @@ public class CentroSportivo {
         in.readLine("[INVIO] per tornare al menu");
     }
 
-    static void aggiungiCampi(ArrayList<CampoDaGioco> campi, ConsoleInputManager in,
-                              ConsoleOutputManager out) {
-        boolean continua;
-        TipoCampo[] tipi = TipoCampo.values();
-        CampoDaGioco campo = null;
-        do {
-            out.println();
-            int i = 1;
-            for (TipoCampo t : tipi) {
-                out.println(i + ") " + t.toString());
-                i++;
-            }
-            boolean flag = false;
-            do {
-                int scelta = in.readInt("\nScegli [1 - 5]: ");
-                try {
-                    campo = new CampoDaGioco(tipi[scelta - 1]);
-                    flag = true;
-                } catch (ArrayIndexOutOfBoundsException a) {
-                    out.println("Inserimento non valido, riprova");
-                }
-            } while (!flag);
-            campi.add(campo);
-            out.println("\nCampo da gioco inserito! Codice campo: " + campo.getCodCampo());
-            continua = !in.readSiNo("Finito? [s] [n]: ");
-        } while (continua);
-        ordinaCampi(campi);
-    }
-
-    static void eliminaCampi(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni,
-                             ConsoleInputManager in, ConsoleOutputManager out) {
+    static void eliminaCampi(ArrayList<CampoDaGioco> campi, ArrayList<Prenotazione> prenotazioni) {
         ArrayList<CampoDaGioco> estratti;
         ArrayList<Prenotazione> prenotazioniCampo;
         TipoCampo[] tipi = TipoCampo.values();
@@ -1153,6 +1094,28 @@ public class CentroSportivo {
             }
         } else {
             out.println("\nMi dispiace, non ci sono campi del tipo selezionato!");
+        }
+    }
+
+    static void salvaStato(ArrayList<Tesserato> tesserati, ArrayList<CampoDaGioco> campi,
+                           ArrayList<Prenotazione> prenotazioni, boolean termineProgramma) throws IOException {
+        out.println("Salvo lo stato nel file: " + nomeFileStato);
+        FileOutputStream fos = new FileOutputStream(nomeFileStato);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(tesserati);
+        oos.writeObject(campi);
+        oos.writeObject(prenotazioni);
+        oos.writeObject(Tesserato.getProxNumTessera());
+        oos.writeObject(CampoDaGioco.getProxCodCampo());
+        oos.writeObject(ordinamentoTesserato);
+        oos.writeObject(ordinamentoCampo);
+        oos.writeObject(ordinamentoPrenotazione);
+        oos.flush();
+        oos.close();
+        fos.close();
+        out.println("Stato salvato!");
+        if (!termineProgramma) {
+            in.readLine("[INVIO] per tornare al menu");
         }
     }
 }
