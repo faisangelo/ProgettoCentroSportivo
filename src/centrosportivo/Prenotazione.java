@@ -89,14 +89,18 @@ public class Prenotazione implements Comparable<Prenotazione>, Serializable {
 
     @Override
     public int compareTo(Prenotazione p) {
-        return this.data.compareTo(p.data);
+        if (this.data.equals(p.data)) {
+            return Integer.compare(this.oraInizio, p.oraInizio);
+        } else {
+            return this.data.compareTo(p.data);
+        }
     }
 
     public enum Ordinamento {
-        DATA {
+        DATAEORA {
             @Override
             public String toString() {
-                return "Data";
+                return "Data e ora";
             }
         },
         GIOCATORE1 {

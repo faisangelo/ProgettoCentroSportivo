@@ -14,16 +14,17 @@ import java.util.HashMap;
 
 public class CentroSportivo {
     static final String nomeFileStato = "centrosportivo.bin";
+    static final String nomeFileTesto = "centrosportivo.txt";
     static final int righePagina = 10;
     static ConsoleInputManager in;
     static ConsoleOutputManager out;
     static Tesserato.Ordinamento ordinamentoTesserato = Tesserato.Ordinamento.COGNOME;
     static CampoDaGioco.Ordinamento ordinamentoCampo = CampoDaGioco.Ordinamento.CODCAMPO;
-    static Prenotazione.Ordinamento ordinamentoPrenotazione = Prenotazione.Ordinamento.DATA;
+    static Prenotazione.Ordinamento ordinamentoPrenotazione = Prenotazione.Ordinamento.DATAEORA;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        in = new ConsoleInputManager();
-        out = new ConsoleOutputManager();
+        in = new ConsoleInputManager("In");
+        out = new ConsoleOutputManager("Out");
         ArrayList<Tesserato> tesserati;
         ArrayList<CampoDaGioco> campi;
         ArrayList<Prenotazione> prenotazioni;
@@ -35,8 +36,8 @@ public class CentroSportivo {
             tesserati = (ArrayList<Tesserato>) ois.readObject();
             campi = (ArrayList<CampoDaGioco>) ois.readObject();
             prenotazioni = (ArrayList<Prenotazione>) ois.readObject();
-            Tesserato.setProxNumTessera((Integer) ois.readObject());
-            CampoDaGioco.setProxCodCampo((Integer) ois.readObject());
+            Tesserato.setProxNumTessera(ois.readInt());
+            CampoDaGioco.setProxCodCampo(ois.readInt());
             ordinamentoTesserato = (Tesserato.Ordinamento) ois.readObject();
             ordinamentoCampo = (CampoDaGioco.Ordinamento) ois.readObject();
             ordinamentoPrenotazione = (Prenotazione.Ordinamento) ois.readObject();
@@ -97,14 +98,15 @@ public class CentroSportivo {
                         case 11 -> campiSlotScelto(campi, prenotazioni);
                         case 12 -> modificaElencoTesserati(tesserati, prenotazioni);
                         case 13 -> modificaElencoCampi(campi, prenotazioni);
-                        case 14 -> salvaStato(tesserati, campi, prenotazioni, false);
+                        case 14 -> salvaSuFile(tesserati, campi, prenotazioni, false);
                     }
                 } else {
                     out.println("Inserimento non valido, riprova!");
                 }
             } while (!flag);
         } while (scelta != 0);
-        salvaStato(tesserati, campi, prenotazioni, true);
+        salvaSuFile(tesserati, campi, prenotazioni, true);
+        out.println();
         in.close();
         out.close();
     }
@@ -413,7 +415,7 @@ public class CentroSportivo {
 
     static void ordinaPrenotazioni(ArrayList<Prenotazione> prenotazioni) {
         switch (ordinamentoPrenotazione) {
-            case DATA -> Collections.sort(prenotazioni);
+            case DATAEORA -> Collections.sort(prenotazioni);
             case GIOCATORE1 -> Collections.sort(prenotazioni, new Comparator<Prenotazione>() {
                 @Override
                 public int compare(Prenotazione p1, Prenotazione p2) {
@@ -461,7 +463,7 @@ public class CentroSportivo {
                 Orario ora = new Orario();
                 do {
                     try {
-                        data = new Data(in.readLine("Inserisci la data: "));
+                        data = new Data(in.readLine("Inserisci la data (gg.mm.aaaa): "));
                         flag = true;
                     } catch (SintassiDataScorretta s) {
                         out.println("Sintassi data scorretta, riprova!\n");
@@ -734,7 +736,7 @@ public class CentroSportivo {
             flag = false;
             do {
                 try {
-                    data = new Data(in.readLine("Inserisci la data: "));
+                    data = new Data(in.readLine("Inserisci la data (gg.mm.aaaa): "));
                     flag = true;
                 } catch (SintassiDataScorretta s) {
                     out.println("Sintassi data scorretta, riprova!\n");
@@ -815,9 +817,9 @@ public class CentroSportivo {
         if (!estratti.isEmpty()) {
             ArrayList<Prenotazione> prenotazioniCampo = new ArrayList<>(prenotazioni);
             prenotazioniCampo.removeIf(p -> p.getCampo().getTipo() != estratti.get(0).getTipo());
-            if (ordinamentoPrenotazione != Prenotazione.Ordinamento.DATA) {
+            if (ordinamentoPrenotazione != Prenotazione.Ordinamento.DATAEORA) {
                 Prenotazione.Ordinamento temp = ordinamentoPrenotazione;
-                ordinamentoPrenotazione = Prenotazione.Ordinamento.DATA;
+                ordinamentoPrenotazione = Prenotazione.Ordinamento.DATAEORA;
                 ordinaPrenotazioni(prenotazioniCampo);
                 ordinamentoPrenotazione = temp;
             }
@@ -890,7 +892,7 @@ public class CentroSportivo {
                 Orario ora = new Orario();
                 do {
                     try {
-                        data = new Data(in.readLine("Inserisci la data: "));
+                        data = new Data(in.readLine("Inserisci la data (gg.mm.aaaa): "));
                         flag = true;
                     } catch (SintassiDataScorretta s) {
                         out.println("Sintassi data scorretta, riprova!\n");
@@ -1097,7 +1099,7 @@ public class CentroSportivo {
         }
     }
 
-    static void salvaStato(ArrayList<Tesserato> tesserati, ArrayList<CampoDaGioco> campi,
+    static void salvaSuFile(ArrayList<Tesserato> tesserati, ArrayList<CampoDaGioco> campi,
                            ArrayList<Prenotazione> prenotazioni, boolean termineProgramma) throws IOException {
         out.println("Salvo lo stato nel file: " + nomeFileStato);
         FileOutputStream fos = new FileOutputStream(nomeFileStato);
@@ -1105,8 +1107,8 @@ public class CentroSportivo {
         oos.writeObject(tesserati);
         oos.writeObject(campi);
         oos.writeObject(prenotazioni);
-        oos.writeObject(Tesserato.getProxNumTessera());
-        oos.writeObject(CampoDaGioco.getProxCodCampo());
+        oos.writeInt(Tesserato.getProxNumTessera());
+        oos.writeInt(CampoDaGioco.getProxCodCampo());
         oos.writeObject(ordinamentoTesserato);
         oos.writeObject(ordinamentoCampo);
         oos.writeObject(ordinamentoPrenotazione);
@@ -1114,8 +1116,37 @@ public class CentroSportivo {
         oos.close();
         fos.close();
         out.println("Stato salvato!");
+        out.println("\nSalvo gli elenchi nel file di testo: " + nomeFileTesto);
+        FileWriter fw = new FileWriter(nomeFileTesto);
+        stampaTesseratiSuFile(tesserati, fw);
+        stampaCampiSuFile(campi, fw);
+        stampaPrenotazioniSuFile(prenotazioni, fw);
+        fw.close();
+        out.println("Elenchi salvati!");
         if (!termineProgramma) {
             in.readLine("[INVIO] per tornare al menu");
+        }
+    }
+
+    static void stampaTesseratiSuFile(ArrayList<Tesserato> tesserati, FileWriter fw) throws IOException {
+        fw.write("*** ELENCO TESSERATI ***\n\n");
+        for (Tesserato t : tesserati) {
+            fw.write(t.toString() + "\n");
+        }
+    }
+
+    static void stampaCampiSuFile(ArrayList<CampoDaGioco> campi, FileWriter fw) throws IOException {
+        fw.write("\n\n*** ELENCO CAMPI ***\n\n");
+        for (CampoDaGioco c : campi) {
+            fw.write(c.toString() + "\n");
+        }
+    }
+
+    static void stampaPrenotazioniSuFile(ArrayList<Prenotazione> prenotazioni, FileWriter fw) throws IOException {
+        int i = 1;
+        fw.write("\n\n*** ELENCO PRENOTAZIONI ***\n\n");
+        for (Prenotazione p : prenotazioni) {
+            fw.write(i++ + ") " + p.toString() + "\n\n");
         }
     }
 }

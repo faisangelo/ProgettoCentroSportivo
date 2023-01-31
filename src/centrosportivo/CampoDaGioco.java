@@ -6,12 +6,9 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
     private final int codCampo;
     private final int maxGiocatori;
     private final TipoCampo tipo;
-    private static Integer proxCodCampo;
+    private static int proxCodCampo = 1;
 
     public CampoDaGioco(TipoCampo tipo) {
-        if (proxCodCampo == null) {
-            proxCodCampo = 1;
-        }
         this.codCampo = proxCodCampo++;
         this.tipo = tipo;
         switch (this.tipo) {
@@ -23,11 +20,11 @@ public class CampoDaGioco implements Comparable<CampoDaGioco>, Serializable {
         }
     }
 
-    public static Integer getProxCodCampo(){
+    public static int getProxCodCampo(){
         return proxCodCampo;
     }
 
-    public static void setProxCodCampo(Integer proxCodCampo){
+    public static void setProxCodCampo(int proxCodCampo){
         CampoDaGioco.proxCodCampo = proxCodCampo;
     }
 

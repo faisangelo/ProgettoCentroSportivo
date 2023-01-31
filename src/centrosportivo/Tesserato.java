@@ -5,22 +5,19 @@ import java.io.Serializable;
 public class Tesserato implements Comparable<Tesserato>, Serializable {
     private final int numTessera;
     private final String nome, cognome;
-    private static Integer proxNumTessera;
+    private static int proxNumTessera = 1;
 
     public Tesserato(String nome, String cognome) {
-        if (proxNumTessera == null) {
-            proxNumTessera = 1;
-        }
         this.numTessera = proxNumTessera++;
         this.nome = nome;
         this.cognome = cognome;
     }
 
-    public static Integer getProxNumTessera(){
+    public static int getProxNumTessera(){
         return proxNumTessera;
     }
 
-    public static void setProxNumTessera(Integer proxNumTessera){
+    public static void setProxNumTessera(int proxNumTessera){
         Tesserato.proxNumTessera = proxNumTessera;
     }
 
