@@ -55,7 +55,6 @@ public class CentroSportivo {
             campi = new ArrayList<>();
             prenotazioni = new ArrayList<>();
             inserisciTesserati(tesserati, true);
-            ordinaTesserati(tesserati);
             out.println();
             inserisciCampi(campi, true);
         }
@@ -161,7 +160,9 @@ public class CentroSportivo {
             out.println("Campo da gioco inserito! Codice campo: " + campo.getCodCampo());
             continua = !in.readSiNo("Finito? [s] [n]: ");
         } while (continua);
-        ordinaCampi(campi);
+        if (!fileNonTrovato) {
+            ordinaCampi(campi);
+        }
     }
 
     static void stampaTesserati(ArrayList<Tesserato> tesserati) {
@@ -688,13 +689,13 @@ public class CentroSportivo {
                         out.println("Inserimento non valido, riprova!");
                     }
                 } while (!flag);
+                ordinaPrenotazioni(prenotazioni);
             } else {
                 out.println("\nPuoi modificare una prenotazione fino a 4 ore prima!");
             }
         } else {
             out.println("Mi dispiace, non ci sono prenotazioni!");
         }
-        ordinaPrenotazioni(prenotazioni);
         in.readLine("[INVIO] per tornare al menu");
     }
 
